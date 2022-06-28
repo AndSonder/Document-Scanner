@@ -30,11 +30,11 @@ show(result)
 
 ## 效果图
 
-![](images/IMG_0817.JPG)![](images/output1.jpg)
+![](images/cell_pic.jpeg)![](images/output1.jpg)
 
-![](images/cell_pic.jpeg)![](images/output2.jpg)
+![](images/dollar_bill.jpeg)![](images/output2.jpg)
 
-![](images/dollar_bill.jpeg)![](images/output3.jpg)
+![](images/IMG_0817.JPG)![](images/output3.jpg)
 
 ![](images/receipt.jpeg)![](images/output4.jpg)
 

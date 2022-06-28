@@ -11,6 +11,7 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 import matplotlib.pyplot as plt
 from transform import *
+from postprocess import notescan
 
 warnings.filterwarnings('ignore')
 
@@ -1060,19 +1061,32 @@ def predict_one_image(image_path):
         h, w = im.shape[0], im.shape[1]
         # 对坐标排序
         src_pts = sort_pts(np.float32(main_point), w, h)
-        scan_h = max(np.sqrt(np.square(src_pts[0][0][0] - src_pts[1][0][0]) + np.square(src_pts[0][0][1] - src_pts[1][0][1])), np.sqrt(np.square(src_pts[2][0][0] - src_pts[3][0][0]) + np.square(src_pts[2][0][1] - src_pts[3][0][1])))
-        scan_w = max(np.sqrt(np.square(src_pts[0][0][0] - src_pts[2][0][0]) + np.square(src_pts[0][0][1] - src_pts[2][0][1])), np.sqrt(np.square(src_pts[1][0][0] - src_pts[3][0][0]) + np.square(src_pts[1][0][1] - src_pts[3][0][1])))
+        scan_h = max(
+            np.sqrt(np.square(src_pts[0][0][0] - src_pts[1][0][0]) + np.square(src_pts[0][0][1] - src_pts[1][0][1])),
+            np.sqrt(np.square(src_pts[2][0][0] - src_pts[3][0][0]) + np.square(src_pts[2][0][1] - src_pts[3][0][1])))
+        scan_w = max(
+            np.sqrt(np.square(src_pts[0][0][0] - src_pts[2][0][0]) + np.square(src_pts[0][0][1] - src_pts[2][0][1])),
+            np.sqrt(np.square(src_pts[1][0][0] - src_pts[3][0][0]) + np.square(src_pts[1][0][1] - src_pts[3][0][1])))
         dst_pts = np.float32([[0, 0], [0, h], [w, 0], [w, h]])
         M = cv2.getPerspectiveTransform(src_pts, dst_pts)
         out_image = cv2.warpPerspective(im, M, (w, h))
         out_image = cv2.resize(out_image, (int(scan_w), int(scan_h)), interpolation=cv2.INTER_LINEAR)
         ## 文档后处理增强
         # 灰度化
-        out_image = cv2.cvtColor(out_image, cv2.COLOR_BGR2GRAY)
-        sharpen = cv2.GaussianBlur(out_image, (0, 0), 3)
-        sharpen = cv2.addWeighted(out_image, 1.5, sharpen, -0.5, 0)
-        out_image = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 15)
-        return out_image
+        # 分别处理3个通道
+        # R = enhance(out_image[:, :, 0])
+        # G = enhance(out_image[:, :, 1])
+        # B = enhance(out_image[:, :, 2])
+        # # 合并图像
+        # out_image = cv2.merge([R, G, B])
+        return notescan(out_image)
+
+
+def enhance(image):
+    sharpen = cv2.GaussianBlur(image, (0, 0), 3)
+    sharpen = cv2.addWeighted(image, 1.5, sharpen, -0.5, 0)
+    image = cv2.adaptiveThreshold(sharpen, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 15)
+    return image
 
 
 if __name__ == "__main__":
