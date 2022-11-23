@@ -12,7 +12,9 @@ pip install -r requirements.txt
 ```
 ### 下载model
 
-从release中下载模型，并放到项目根目录下
+从release中下载模型，并放到项目根目录下，从下面的链接下载：
+
+https://github.com/AndSonder/Document-Scanner/releases/tag/model
 
 ### 运行
 
